@@ -2,11 +2,27 @@ require("dotenv").config();
 var Twitter = require("twitter");
 var Spotify = require("node-spotify-api")
 var request = require("request");
+var fs = require("fs");
 var keys = require("./keys.js");
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 
 var command = process.argv[2];
+var titleEntered = process.argv.slice(3).reduce(function(final,val, ind, arr){
+    return final += " "+val
+},"").trim();
+console.log("Title Entered:", titleEntered)
+
+//checks if "do-what-it-says" was chosen. if so, changes command and title entered based on file content
+if(command == "do-what-it-says"){
+    console.log("You have chosen: do-what-it-says\n")
+    var data = fs.readFileSync("./random.txt", "utf8") 
+    //console.log(data);
+    newArgs = data.split(",");
+    command = newArgs[0];
+    titleEntered = newArgs[1];
+};
+
 
 if(command == "my-tweets"){
     console.log("Here are your last 20 Tweets")
@@ -33,16 +49,13 @@ if(command == "my-tweets"){
     });
 }else if(command == "spotify-this-song"){
     console.log("You have chosen: spotify-this-song")
-    var enteredSong = process.argv.slice(3).reduce(function(final,val, ind, arr){
-        return final += " "+val
-    },"").trim();
-    console.log(enteredSong)
-    if(!enteredSong){
+    
+    if(!titleEntered){
         console.log("No song was entered...")
         return;
     }
     spotify
-        .search({ type: 'track', query: enteredSong })
+        .search({ type: 'track', query: titleEntered })
         .then(function(response) {
             // response = JSON.stringify(response);
             console.log("Track Name:   ", response.tracks.items[0].name);
@@ -56,15 +69,11 @@ if(command == "my-tweets"){
 
 }else if(command == "movie-this"){
     console.log("You have chosen: movie-this")
-    var enteredMovie = process.argv.slice(3).reduce(function(final,val, ind, arr){
-        return final += " "+val
-    },"").trim();
-    console.log(enteredMovie)
-    if(!enteredMovie){
+    if(!titleEntered){
         console.log("No movie was entered...")
         return;
     }
-    request("http://www.omdbapi.com/?t="+enteredMovie+"&y=&plot=short&apikey=trilogy", function(error, response, body) {
+    request("http://www.omdbapi.com/?t="+titleEntered+"&y=&plot=short&apikey=trilogy", function(error, response, body) {
 
         // If the request is successful (i.e. if the response status code is 200)
         if (!error && response.statusCode === 200) {
@@ -81,8 +90,6 @@ if(command == "my-tweets"){
             console.log("Actors :          " + bodyObj.Actors);
         }
     });
-}else if(command == "do-what-it-says"){
-    console.log("You have chosen: do-what-it-says")
 }else {
     console.log("Please enter a proper command")
 }
