@@ -14,9 +14,6 @@ var textEntered = process.argv.slice(3).reduce(function(final,val, ind, arr){
 //console.log("Title Entered:", titleEntered)
 resolveCommand(commandEntered, textEntered);
 
-
-
-
 function resolveCommand(command, text){
     if(command == "my-tweets"){
         console.log("You have chosen: my-tweets")
@@ -41,7 +38,6 @@ function resolveCommand(command, text){
         console.log("Please enter a proper command")
     }
 }
-
 
 function getTweets(){
     console.log("Here are your last 20 Tweets")
@@ -129,7 +125,9 @@ function searchMovie(movie){
     });
 }
 
-
+module.exports = {
+    resolveCommand: resolveCommand
+}
 
 // move functions to seperate file and export?
 // log data to .txt file
